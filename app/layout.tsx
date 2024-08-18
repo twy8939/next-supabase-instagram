@@ -3,9 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "config/material-tailwind-theme-provider";
 import ReactQueryClientProvider from "config/ReactQueryClientProvider";
-import Header from "components/header";
-import Footer from "components/footer";
 import RecoilProvider from "config/RecoilProvider";
+import MainLayout from "components/layouts/main-layout";
+import Auth from "components/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +19,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const loggedIn = true;
+
   return (
     <RecoilProvider>
       <ReactQueryClientProvider>
@@ -34,7 +36,9 @@ export default function RootLayout({
               />
             </head>
 
-            <body className={inter.className}>{children}</body>
+            <body className={inter.className}>
+              {loggedIn ? <MainLayout>{children}</MainLayout> : <Auth />}
+            </body>
           </html>
         </ThemeProvider>
       </ReactQueryClientProvider>
