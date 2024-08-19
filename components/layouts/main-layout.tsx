@@ -1,3 +1,10 @@
+import Sidebar from "components/sidebar";
+
 export default async function MainLayout({ children }) {
-  return <main>{children}</main>;
+  return (
+    <main>
+      <Sidebar />
+      {children}
+    </main>
+  );
 }
