@@ -5,7 +5,7 @@ import SignIn from "./signIn";
 import SignUp from "./signUp";
 
 export default function Auth() {
-  const [view, setView] = useState<"signIn" | "signUp">("signIn");
+  const [view, setView] = useState<"signIn" | "signUp">("signUp");
 
   return (
     <main className="h-screen w-screen flex justify-center items-center bg-gradient-to-br from-purple-50 to-light-blue-50">
