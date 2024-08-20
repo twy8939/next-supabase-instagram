@@ -1,3 +1,5 @@
+import LogoutButton from "components/logout-button";
+
 export const metadata = {
   title: "Instagram",
   description: "Instagram Clone",
@@ -5,8 +7,9 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Instagram</h1>
+    <main className="w-full h-screen flex flex-col gap-2 items-center justify-center">
+      <h1 className="text-xl font-bold">Welcome {`"Kim YongMin"`}</h1>
+      <LogoutButton />
     </main>
   );
 }
