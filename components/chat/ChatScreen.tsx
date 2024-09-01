@@ -3,9 +3,13 @@
 import React from "react";
 import Person from "./Person";
 import Message from "./Message";
+import { useRecoilValue } from "recoil";
+import { selectedIndexState } from "utils/recoil/atoms";
 
 export default function ChatScreen() {
-  return (
+  const selectedIndex = useRecoilValue(selectedIndexState);
+
+  return selectedIndex !== null ? (
     <div className="w-full h-screen flex flex-col">
       <Person
         index={0}
@@ -38,5 +42,7 @@ export default function ChatScreen() {
         </button>
       </div>
     </div>
+  ) : (
+    <div className="w-full"></div>
   );
 }
