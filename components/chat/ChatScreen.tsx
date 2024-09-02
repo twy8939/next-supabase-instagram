@@ -4,20 +4,26 @@ import React from "react";
 import Person from "./Person";
 import Message from "./Message";
 import { useRecoilValue } from "recoil";
-import { selectedIndexState } from "utils/recoil/atoms";
+import { selectedUserIdState } from "utils/recoil/atoms";
+import { useQuery } from "@tanstack/react-query";
+import { getUserById } from "actions/chatActions";
 
 export default function ChatScreen() {
-  const selectedIndex = useRecoilValue(selectedIndexState);
+  const selectedUserId = useRecoilValue(selectedUserIdState);
+  const selectedUserQuery = useQuery({
+    queryKey: ["user", selectedUserId],
+    queryFn: () => getUserById(selectedUserId),
+  });
 
-  return selectedIndex !== null ? (
+  return selectedUserQuery.data !== null ? (
     <div className="w-full h-screen flex flex-col">
       <Person
         index={0}
         isActive={false}
-        name={"YongMin"}
+        name={selectedUserQuery.data?.user?.email.split("@")[0]}
         onChatScreen={false}
         onlineAt={new Date().toISOString()}
-        userId={"twy8939@naver.com"}
+        userId={selectedUserQuery.data?.user.id}
       />
 
       <div className="w-full flex-1 flex flex-col p-4 gap-3">
