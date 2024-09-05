@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Person from "./Person";
 import Message from "./Message";
 import { useRecoilValue } from "recoil";
@@ -11,8 +11,11 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getAllMessages, getUserById, sendMessage } from "actions/chatActions";
 import { Spinner } from "@material-tailwind/react";
+import { createBrowserSupabaseClient } from "utils/supabase/client";
 
 export default function ChatScreen() {
+  const supabase = createBrowserSupabaseClient();
+
   const selectedUserId = useRecoilValue(selectedUserIdState);
   const selectedUserIndex = useRecoilValue(selectedUserIndexState);
 
@@ -39,6 +42,25 @@ export default function ChatScreen() {
     queryKey: ["messages", selectedUserId],
     queryFn: () => getAllMessages({ chatUserId: selectedUserId }),
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("messages_postgres_changes")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "message" },
+        (payload) => {
+          if (payload.eventType === "INSERT" && !payload.errors) {
+            getAllMessagesQuery.refetch();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
 
   return selectedUserQuery.data !== null ? (
     <div className="w-full h-screen flex flex-col">
