@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Person from "./Person";
 import Message from "./Message";
 import { useRecoilValue } from "recoil";
@@ -8,15 +8,36 @@ import {
   selectedUserIdState,
   selectedUserIndexState,
 } from "utils/recoil/atoms";
-import { useQuery } from "@tanstack/react-query";
-import { getUserById } from "actions/chatActions";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getAllMessages, getUserById, sendMessage } from "actions/chatActions";
+import { Spinner } from "@material-tailwind/react";
 
 export default function ChatScreen() {
   const selectedUserId = useRecoilValue(selectedUserIdState);
   const selectedUserIndex = useRecoilValue(selectedUserIndexState);
+
+  const [message, setMessage] = useState("");
+
   const selectedUserQuery = useQuery({
     queryKey: ["user", selectedUserId],
     queryFn: () => getUserById(selectedUserId),
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: () =>
+      sendMessage({
+        message,
+        chatUserId: selectedUserId,
+      }),
+    onSuccess: () => {
+      setMessage("");
+      getAllMessagesQuery.refetch();
+    },
+  });
+
+  const getAllMessagesQuery = useQuery({
+    queryKey: ["messages", selectedUserId],
+    queryFn: () => getAllMessages({ chatUserId: selectedUserId }),
   });
 
   return selectedUserQuery.data !== null ? (
@@ -31,24 +52,28 @@ export default function ChatScreen() {
       />
 
       <div className="w-full overflow-y-scroll flex-1 flex flex-col p-4 gap-3">
-        <Message isFromMe={true} message={"Hello"} />
-        <Message isFromMe={false} message={"Hi"} />
-        <Message isFromMe={true} message={"Hello"} />
-        <Message isFromMe={true} message={"Hello"} />
-        <Message isFromMe={false} message={"Hi"} />
-        <Message isFromMe={false} message={"Hi"} />
+        {getAllMessagesQuery.data?.map((message) => (
+          <Message
+            key={message.id}
+            message={message.message}
+            isFromMe={message.receiver === selectedUserId}
+          />
+        ))}
       </div>
 
       <div className="flex">
         <input
           className="p-3 w-full border-2 border-light-blue-600"
           placeholder="메시지를 입력해주세요."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
         />
         <button
           className="min-w-20 p-1 bg-light-blue-700 text-white"
           color="light-blue"
+          onClick={() => sendMessageMutation.mutate()}
         >
-          <span>전송</span>
+          {sendMessageMutation.isPending ? <Spinner /> : <span>전송</span>}
         </button>
       </div>
     </div>
