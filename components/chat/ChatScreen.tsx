@@ -5,6 +5,7 @@ import Person from "./Person";
 import Message from "./Message";
 import { useRecoilValue } from "recoil";
 import {
+  presenceState,
   selectedUserIdState,
   selectedUserIndexState,
 } from "utils/recoil/atoms";
@@ -18,6 +19,7 @@ export default function ChatScreen() {
 
   const selectedUserId = useRecoilValue(selectedUserIdState);
   const selectedUserIndex = useRecoilValue(selectedUserIndexState);
+  const presence = useRecoilValue(presenceState);
 
   const [message, setMessage] = useState("");
 
@@ -69,7 +71,7 @@ export default function ChatScreen() {
         isActive={false}
         name={selectedUserQuery.data?.user?.email.split("@")[0]}
         onChatScreen={false}
-        onlineAt={new Date().toISOString()}
+        onlineAt={presence?.[selectedUserId]?.[0]?.onlineAt}
         userId={selectedUserQuery.data?.user.id}
       />
 
